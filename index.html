@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+    <link href = "fight_style.css" rel = "stylesheet">
+    <head>
+        <title>Battle the Wizard</title>
+    </head>
+    <body>
+        <!---------------------------------------------------------------------------------------------------------------------------------------------------
+        Title Text
+        ---------------------------------------------------------------------------------------------------------------------------------------------------->
+        <h1>Battle the Wizard</h1>
+        <h2>Made by Liam :)</h2>
+        <p class = "title_text">Check instructions to play the game, refresh to restart, and change the enemy hp if the game is too easy or too hard</p>
+        <p class = "title_text">"Dark Mage Battle Music ~ Magnus Mortis" by 'Robert Russell Composer'</p>
+        <p class = "title_text">"8-bit RPG Music | Victory Theme" by 'Adam Haynes'</p>
+
+        <div class="battle-wrapper">
+        <div class="top-buttons">
+            <button class="mute-btn" id="mute-btn" onclick="toggleMute()">Mute Music</button>
+            <button class="instructions-btn" onclick="document.getElementById('instructions-panel').classList.toggle('instructions-panel-open')">Instructions</button>
+        </div>
+        <div class="hp-setter">
+            <input type="number" id="hp-setter-input" min="1" step="1" placeholder="Enemy HP">
+            <button onclick="setEnemyHp()">Set HP</button>
+        </div>
+        <div id="instructions-panel" class="instructions-panel">
+            <p>Instructions:</p>
+            <p></p>
+            <p>Click the buttons (colored text under player names) to attack and defend</p>
+            <p></p>
+            <p>Defeat the wizard to win</p>
+            <p></p>
+            <p>Gain Stamina to do more powerful attacks</p>
+            <p></p>
+            <p><strong>Attack</strong> - deal random damage depending on the player</p>
+            <p></p>
+            <p><strong>Defend</strong> - reduce damage and get 2 more stamina when hit</p>
+            <p></p>
+            <p><strong>Actions:</strong></p>
+            <p><strong>ATTACKER:</strong></p>
+            <p><strong>Attack</strong> - 10-25 damage</p>
+            <p><strong>Main</strong> - pulls out a flintlock and will either do massive damage towards the enemy, or yourself (50/50)</p>
+            <p><strong>Secondary</strong> - throws a card at the enemy, and can do extra damage, stun the enemy, weaken enemy damage, or gain health</p>
+            <p></p>
+            <p><strong>DEFEDNER:</strong></p>
+            <p><strong>Attack</strong> - 5-20 damage</p>
+            <p><strong>Main</strong> - Decreases enemy attacks and increases player attacks for 3 turns. Defender does massive damage when attacked. But after 3 turns or when Defender has been attacked, he falls asleep to regain power for a turn</p>
+            <p><strong>Secondary</strong> - Creates a shield for one of the players and places it infront of them</p>
+            <p></p>
+            <p><strong>HEALER:</strong></p>
+            <p><strong>Attack</strong> - 1-15 damage</p>
+            <p><strong>Main</strong> - heals everybody for random hp, and has chance to revive a player if a player is dead</p>
+            <p><strong>Secondary</strong> - heals a player selected for 30hp</p>
+        </div>
+
+        <!---------------------------------------------------------------------------------------------------------------------------------------------------
+        Battle Box
+        ---------------------------------------------------------------------------------------------------------------------------------------------------->
+        <div class="battle-scene">
+
+            <div class="stats-bar">
+                <div class="stat-chip">
+                    <div class = "stats-text"></div>
+                    <img src="Attacker_head.png" class="head-img" alt="Attacker-head">
+                    <div class="hp-row">
+                        <p id="player1-hp">Player1 HP: 100</p>
+                        <p id="player1-shield" class="shield-text"></p>
+                    </div>
+                </div>
+                <div class="stat-divider">/</div>
+                <div class="stat-chip">
+                    <img src="Defender_head.png" class="head-img" alt="Defender-head">
+                    <div class="hp-row">
+                        <p id="player2-hp">Player2 HP: 100</p>
+                        <p id="player2-shield" class="shield-text"></p>
+                    </div>
+                </div>
+                <div class="stat-divider">/</div>
+                <div class="stat-chip">
+                    <img src="Healer_head.png" class="head-img" alt="Healer-head">
+                    <div class="hp-row">
+                        <p id="player3-hp">Player3 HP: 100</p>
+                        <p id="player3-shield" class="shield-text"></p>
+                    </div>
+                </div>
+                <div class="stamina-box">
+                    <span class="stamina-label">Stamina</span>
+                    <p id="stamina">0</p>
+                </div>
+            </div>
+
+            <div class="battle-area">
+                <div class="player-side">
+                    <div class="sprite-slot-attacker" id="sprite-attacker">
+                        <img src="Attacker_final.png" class="sprite-img" alt="Attacker">
+                        <span class="sprite-label">Attacker</span>
+                    </div>
+                    <div class="sprite-slot-defender" id="sprite-defender">
+                        <img src="Defender_final.png" class="sprite-img" alt="Defender">
+                        <span class="sprite-label">Defender</span>
+                    </div>
+                    <div class="sprite-slot-healer" id="sprite-healer">
+                        <img src="Healer_final.png" class="sprite-img" alt="Healer">
+                        <span class="sprite-label">Healer</span>
+                    </div>
+                </div>
+
+                <div class="enemy-side">
+                    <div class="sprite-slot enemy-slot" id="sprite-enemy">
+                        <img src="Enemy_final.png" class="sprite-img enemy-img" alt="Enemy">
+                        <p id="enemy-hp">Enemy HP: 200</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="battle-bottom">
+                <div id="game-textbox" class="game-textbox">
+                    <div id="textbox-lines" class="textbox-lines"></div>
+                    <svg class="textbox-corner"></svg>
+                </div>
+                <div class="action-panel" id="action-panel">
+                    <div class="action-tabs">
+                        <div class="action-tab tab-attacker tab-active" id="tab-1" onclick="switchTab(1)">Attacker</div>
+                        <div class="action-tab tab-defender" id="tab-2" onclick="switchTab(2)">Defender</div>
+                        <div class="action-tab tab-healer" id="tab-3" onclick="switchTab(3)">Healer</div>
+                    </div>
+                    <div class="action-body">
+                        <div class="action-content player-attacker" id="action-content-1">
+                            <div class="action-row">
+                                <button id="attack-button" class="action-btn">Attack</button>
+                            </div>
+                            <div class="action-row">
+                                <button id="main-button" class="action-btn">Flintlock</button>
+                                <span class="action-cost">→ 6 stm</span>
+                                <span class="action-meta" id="main-cooldown-1"></span>
+                            </div>
+                            <div class="action-row">
+                                <button id="second-button" class="action-btn">Card Toss</button>
+                                <span class="action-cost">→ 3 stm</span>
+                            </div>
+                            <div class="action-row">
+                                <button id="defend-button" class="action-btn">Defend</button>
+                                <span class="action-meta" id="def-cooldown-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="action-content player-defender action-hidden" id="action-content-2">
+                            <div class="action-row">
+                                <button id="attack-button-2" class="action-btn">Attack</button>
+                            </div>
+                            <div class="action-row">
+                                <button id="main-button-2" class="action-btn">Knight Blunder</button>
+                                <span class="action-cost">→ 6 stm</span>
+                            </div>
+                            <div class="action-row">
+                                <button id="second-button-2" class="action-btn">Backup Shield</button>
+                                <span class="action-cost">→ 3 stm</span>
+                                <span class="action-meta" id="sec-cooldown-2"></span>
+                            </div>
+                            <div class="action-row">
+                                <button id="defend-button-2" class="action-btn">Defend</button>
+                                <span class="action-meta" id="def-cooldown-2"></span>
+                            </div>
+                            <div class="action-row">
+                                <span id="enrage-counter" class="action-status"></span>
+                            </div>
+                            <div id="shield-target-div" style="display:none;">
+                                <p><strong>Shield who?</strong></p>
+                                <button id="shield-btn-1"></button>
+                                <button id="shield-btn-2"></button>
+                                <button id="shield-btn-3"></button>
+                            </div>
+                        </div>
+
+                        <div class="action-content player-healer action-hidden" id="action-content-3">
+                            <div class="action-row">
+                                <button id="attack-button-3" class="action-btn">Attack</button>
+                            </div>
+                            <div class="action-row">
+                                <button id="main-button-3" class="action-btn">Fresh Air</button>
+                                <span class="action-cost">→ 6 stm</span>
+                            </div>
+                            <div class="action-row">
+                                <button id="second-button-3" class="action-btn">Medical Aid</button>
+                                <span class="action-cost">→ 2 stm</span>
+                            </div>
+                            <div class="action-row">
+                                <button id="defend-button-3" class="action-btn">Defend</button>
+                                <span class="action-meta" id="def-cooldown-3"></span>
+                            </div>
+                            <div id="heal-target-div" style="display:none;">
+                                <p><strong>Heal who?</strong></p>
+                                <button id="heal-btn-1"></button>
+                                <button id="heal-btn-2"></button>
+                                <button id="heal-btn-3"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+        <div id="input-lock-overlay" class="input-lock-overlay"></div>
+
+        <script src="textbox.js"></script>
+        <script src="code.js"></script>
+    </body>
+</html>
+
+<!--
+TO DO LIST:
+
+    -win + lose text
+    -sound effects + music
+    -extra sprites
+
+-FINAL STUFF:
+    -BUG: ATTACKER cannot heal self when using heart card
+    -shield sprites
+    -enemy heal sprites
+    -delete TO-DO List
+
+-if can:
+    -colored names
+    -info apears together and should wait
+
+    -main attack sprites
+    -secondary sprites
+    -victory sprites
+
+-BUGS:
+    -info shows after text loads
+-Players:
+    v/-Players fallen text
+    v/-Players dead state
+    v/-Players not fighting when fallen
+
+-Enemies:
+    v/-attack random players
+
+Players again:
+    v/-player classes (like in python)
+    v/-main + secondary attacks
+        v/-Player 1 main
+            v/-50/50 chance of big damage
+            v/-cooldown penalty
+
+        v/-Player 2 main
+            v/-rounds left counter
+            v/-unable to defend or main attack in state
+            v/-damage reduction
+            v/-big damage when attacked
+            v/-anger gone after big damage
+            v/-cooldown penalty
+            v/-extra damage for other players
+
+        v/-Player 3 main
+            v/-all alive -> everyone 40 hp each
+            v/-one dead -> revive + 20 hp each
+            v/-two dead -> 1 revive + 10 hp to self
+
+        v/-Player 1 secondary
+            v/-rework
+                v/-Heart -> small damage + heal -> QUEEN
+                v/-Diamonds -> weaken enemy damage -> ACE
+                v/-Clubs -> defalt damage with chance of stunning -> JACK
+                v/-Spades -> extra damage -> KING
+                v/-round numbers
+
+        v/-Player 2 secondary
+            v/-choose player
+            v/-damage reduction
+            v/-lasts for 2 turns
+
+        v/-Player 3 secondary
+            v/-choose player
+            v/-healer gained hp
+
+    v/-manna building
+    v/-defend ability
+    v/-defend cooldown
+    -ability cooldowns
+
+Enemies again:
+    -different attacks
+        v/-self-heal
+            v/-heals self when too much damage is done, can do this every 2 turns or more
+        v/-defend
+            v/-can choose to defend before player attack
+
+
+-Other:
+    v/-text box - https://www.youtube.com/watch?v=8i2K7uwh124
+    v/-player + enemy sprites and positions
+    v/-screen ratio
+    v/-Select attack buttons
+    v/-align box
+    -info dispayed after text
+    -decorate:
+        v/-align box
+        v/-better sprites
+        -animations
+            -walking
+            -attacking
+            -damage (shake)
+            -low hp
+            -death
+            -revive (death backwards)
+            -mains
+            -secondaries
+            -win animations
+        v/-Stamina looks
+        v/-Heads Sprites
+        v/-fonts
+    v/-instructions
+    -balancing
+    v/-simplifying code
+
+-If time:
+    v/-enemy AI
+    -background
+    -dodge chance
+    -Items
+    -Dodge Mini-game (paper mario)
+    -multiple enemies
+        -multiple attacks
+        -chose enemy when attacking
+    -select different players
+
+
+ENEMY AI Overview
+
+-->
