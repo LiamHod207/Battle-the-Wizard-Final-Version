@@ -628,7 +628,7 @@ async function BeginAttack() {
         enemy_attack = "main";
         spriteEnemy.querySelector('img').src = 'enemy_main.png';
     } else if (enemy_stunned == false) {
-        enemy_attack = EnemyPlan()
+        enemy_attack = "main" //EnemyPlan()
         if (enemy_attack == "defend") {
             queueText("Enemy defends itself...", textSpeeds.normal, () => { spriteEnemy.querySelector('img').src = 'Enemy_defend.png'; });
             await sleep (2000);
