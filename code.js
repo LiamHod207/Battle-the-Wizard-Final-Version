@@ -515,7 +515,7 @@ function EnemyPlan() {
         }
     } else {
         if (enemyHp == fullEnemyHp) {
-            if (enemy_chance <= 50) {
+            if (enemy_chance <= 60) {
                 return enemy_attack = "attack"
             } else {
                 return enemy_attack = "defend"
